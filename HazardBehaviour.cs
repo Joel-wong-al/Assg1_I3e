@@ -2,15 +2,19 @@ using UnityEngine;
 
 public class HazardBehaviour : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private int damageAmount = 20; // Amount of damage the hazard inflicts
+
+    private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("Player")) // Check if the player has entered the hazard
+        {
+            HealthBehaviour health = other.GetComponent<HealthBehaviour>();
+            if (health != null) // If the player has a HealthBehaviour component
+            {
+                health.TakeDamage(damageAmount); // Inflict damage
+                Debug.Log("Player has entered a hazard and took " + damageAmount + " damage.");
+            }
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

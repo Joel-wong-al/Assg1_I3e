@@ -1,23 +1,25 @@
 using UnityEngine;
+using TMPro;
 
 public class PlayerBehaviour : MonoBehaviour
 {
-    public int maxhealth = 100; //PLayer's maximum health//
-
-    public double currentHealth; //Player's current amount of health//
 
     public int currentScore = 0;
 
     bool canInteract = false; //Wethere the player ca interact with this thing yet//
 
-    private Vector3 spawnpoint; //Stores the respawn position of the player//
-
     PotionBehaviour potions; // Add the behaviour of the potions to the variable//
 
+    DoorBehaviour door; // Add the behaviour of the door to the variable//
+
+    [SerializeField]
+    TextMeshProUGUI scoreText;
+
+    [SerializeField]
+    TextMeshProUGUI healthText;
     void Start()
     {
-        currentHealth = maxhealth; //Setting the player's current health to the max//
-        spawnpoint = transform.position; //Set the Inital spawn point of player//
+        scoreText.text = "SCORE: " + currentScore.ToString();
     }
     void OnInteract()
     {
@@ -29,6 +31,13 @@ public class PlayerBehaviour : MonoBehaviour
                 potions.Collect(this);
                 Debug.Log("Your current score is " + currentScore);
             }
+
+            if (door != null) // Allow the player to open the door//
+            {
+                door.Interact();
+                Debug.Log("You have opened the door");
+            }
+
             if (gameObject.CompareTag("EscapeDoor"))
             {
                 if (currentScore >= 10) //Player can escape//
@@ -38,7 +47,7 @@ public class PlayerBehaviour : MonoBehaviour
                 }
                 if (currentScore <= 10)//Player can't escape//
                 {
-
+        
                 }
             }
         }
@@ -50,48 +59,32 @@ public class PlayerBehaviour : MonoBehaviour
             canInteract = true;//Let the system know that this item can be interacted with//
             potions = other.GetComponent<PotionBehaviour>();//Get the code to allow the collection and destruction of potion//
         }
-        if (other.CompareTag("EscapeDoor"))
+        else if (other.CompareTag("door"))
         {
             canInteract = true;//allows for the player to open the door//
-            //Add door behaviour//
+            door = other.GetComponent<DoorBehaviour>();//Get the code to allow the door to open//
         }
+        else if (other.CompareTag("Hazard"))
+        {
+            Debug.Log("Player has entered a hazard area");
+            HealthBehaviour health = GetComponent<HealthBehaviour>();
+            if (health != null)
+            {
+                health.TakeDamage(100); // Instantly "kill" player
+            }
+        }
+    }
 
-    }
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Hazard"))//Checking what type of hazard it is//
-        {
-            TakeDamage(100); //Player will instantly die//
-        }
-        if (collision.gameObject.CompareTag("Hazard_Smoke"))
-        {
-            TakeDamage(0.1); //Player will lose health over time//
-        }
-    }
-    void TakeDamage(double amount)
-    {
-        currentHealth -= amount;
-        Debug.Log("Player has taken damage , current health: " + currentHealth);
 
-        if (currentHealth <= 0)
-        {
-            Respawn();
-        }
-    }
-    void Respawn()
-    {
-        transform.position = spawnpoint; // Send player back to spawn//
-        currentHealth = maxhealth; // Set player health back to 100//
-        Debug.Log("Player has respawned!"); //Let me know whether this code worked//
-    }
 
     public void ModifyScore(int amt)
     {
         currentScore += amt;
+        scoreText.text = "SCORE: " + currentScore.ToString();
     }
 
     [SerializeField]
-    float interactionDistance = 5f;
+    float interactionDistance = 20f;
     void Update()
     {
         RaycastHit hitInfo;
@@ -103,7 +96,16 @@ public class PlayerBehaviour : MonoBehaviour
                 canInteract = true;
                 potions = hitInfo.collider.GetComponent<PotionBehaviour>();
 
+                if (Input.GetKeyDown(KeyCode.E))//use of chatgpt to check for input//
+                {
+                    OnInteract();
+                }
             }
+            if (hitInfo.collider.gameObject.CompareTag("EscapeDoor"))
+            {
+                canInteract = true;
+            }
+
         }
     }
 
