@@ -17,9 +17,12 @@ public class PlayerBehaviour : MonoBehaviour
 
     [SerializeField]
     TextMeshProUGUI healthText;
+
+
     void Start()
     {
         scoreText.text = "SCORE: " + currentScore.ToString();
+
     }
     void OnInteract()
     {
@@ -32,22 +35,27 @@ public class PlayerBehaviour : MonoBehaviour
                 Debug.Log("Your current score is " + currentScore);
             }
 
-            if (door != null) // Allow the player to open the door//
+            if (door != null)
             {
-                door.Interact();
-                Debug.Log("You have opened the door");
-            }
+                
+                if (door.gameObject.CompareTag("EscapeDoor"))// Check if the door is an escape door//
+                {
+                    if (currentScore >= 10) //Check if player has enough ponints to escape//
+                    {
+                        Debug.Log("Door is Open");
+                        door.Interact();
 
-            if (gameObject.CompareTag("EscapeDoor"))
-            {
-                if (currentScore >= 10) //Player can escape//
-                {
-                    Debug.Log("Door is Open");//Tell me that the door is open in requirements is met//
-                    //Add door behaviour when it is done//
+                    }
+                    else
+                    {
+                        Debug.Log("You need 10 points to escape");
+                    }
                 }
-                if (currentScore <= 10)//Player can't escape//
+                else// Regular door, just open it
                 {
-        
+                    
+                    door.Interact();
+                    Debug.Log("You have opened the door");
                 }
             }
         }
@@ -64,6 +72,11 @@ public class PlayerBehaviour : MonoBehaviour
             canInteract = true;//allows for the player to open the door//
             door = other.GetComponent<DoorBehaviour>();//Get the code to allow the door to open//
         }
+        else if (other.CompareTag("EscapeDoor"))
+        {
+            canInteract = true; // allows the player to interact with the escape door//
+            door = other.GetComponent<DoorBehaviour>(); // Get the door behaviour for interaction//
+        }
         else if (other.CompareTag("Hazard"))
         {
             Debug.Log("Player has entered a hazard area");
@@ -72,6 +85,14 @@ public class PlayerBehaviour : MonoBehaviour
             {
                 health.TakeDamage(100); // Instantly "kill" player
             }
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("door") || other.CompareTag("EscapeDoor"))
+        {
+            canInteract = false;
+            door = null;
         }
     }
 
@@ -83,30 +104,6 @@ public class PlayerBehaviour : MonoBehaviour
         scoreText.text = "SCORE: " + currentScore.ToString();
     }
 
-    [SerializeField]
-    float interactionDistance = 20f;
-    void Update()
-    {
-        RaycastHit hitInfo;
-        Debug.DrawRay(transform.position, transform.forward * interactionDistance, Color.red);
-        if (Physics.Raycast(transform.position, transform.forward, out hitInfo, interactionDistance))
-        {
-            if (hitInfo.collider.gameObject.CompareTag("Collectible"))
-            {
-                canInteract = true;
-                potions = hitInfo.collider.GetComponent<PotionBehaviour>();
 
-                if (Input.GetKeyDown(KeyCode.E))//use of chatgpt to check for input//
-                {
-                    OnInteract();
-                }
-            }
-            if (hitInfo.collider.gameObject.CompareTag("EscapeDoor"))
-            {
-                canInteract = true;
-            }
-
-        }
-    }
 
 }

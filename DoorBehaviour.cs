@@ -2,23 +2,52 @@ using UnityEngine;
 
 public class DoorBehaviour : MonoBehaviour
 {
+    public Transform player;
+    AudioSource doorSound; //Audio source for the door sound effect//
     bool isOpen = false; //The door is currently closed//
+    public float closeDistance = 5f;//Distance for door to close//
+
+    void Start()
+    {
+        doorSound = GetComponent<AudioSource>(); //Get the audio source component attached to the door//
+    }
     public void Interact()
     {
-        Vector3 doorRotation = transform.eulerAngles; // Get the current rotation of the door//
-
-        if (!isOpen) //If the door is closed//
+        if (!isOpen)
         {
-            doorRotation.y += 90f; // Rotate the door by 90 degrees on the Y-axis//
-            isOpen = true; // Set the door to open state//
+            OpenDoor();
         }
-        else if (isOpen == true) //If the door is open//
-        {
-            doorRotation.y -= 90f; // Rotate the door back by 90 degrees on the Y-axis//
-            isOpen = false; // Set the door to closed state//
-        }
-
-        transform.eulerAngles = doorRotation; // Apply the new rotation to the door//
-
     } 
+
+    void Update()
+    {
+        if (isOpen && Vector3.Distance(transform.position, player.position) > closeDistance)
+        {
+            CloseDoor();
+        }
+    }
+        void OpenDoor()
+    {
+        Vector3 doorRotation = transform.eulerAngles;
+        doorRotation.y += 90f;
+        transform.eulerAngles = doorRotation;
+
+        if (doorSound != null)
+        {
+            doorSound.Play();
+            Debug.Log("Door opened and sound played");
+        }
+
+        isOpen = true;
+    }
+
+    void CloseDoor()
+    {
+        Vector3 doorRotation = transform.eulerAngles;
+        doorRotation.y -= 90f;
+        transform.eulerAngles = doorRotation;
+
+        isOpen = false;
+        Debug.Log("Door closed");
+    }
 }

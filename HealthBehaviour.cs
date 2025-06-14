@@ -7,11 +7,16 @@ public class HealthBehaviour : MonoBehaviour
 
     private int currentHealth; //Player's current amount of health//
 
+    private bool InSmoke = false;//Whther player is in smoke//
+    [SerializeField] private int smokeDamageAmount = 20;//Damage player take in smoke per second//
 
-    [SerializeField]private Transform RespawnPoint; //The point where the player will respawn//
+    [SerializeField] private float smokeDamageInterval = 0.1f;
 
-    [SerializeField]
-    TextMeshProUGUI HeaalthText; //Text to display the player's health//
+    [SerializeField] private Transform RespawnPoint; //The point where the player will respawn//
+
+    private float smokeTimer = 0f;
+
+    [SerializeField] TextMeshProUGUI HeaalthText; //Text to display the player's health//
     void Start()
     {
         currentHealth = maxhealth; //Setting the player's current health to the max//
@@ -19,13 +24,41 @@ public class HealthBehaviour : MonoBehaviour
         Debug.Log("Player health initialized: " + currentHealth);
     }
 
+    void Update()
+    {
+        if (InSmoke)
+        {
+            smokeTimer += Time.deltaTime;
 
+            if (smokeTimer >= smokeDamageInterval)
+            {
+                TakeDamage(smokeDamageAmount);
+                smokeTimer = 0f;
+            }
+        }
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Hazard_Smoke"))
+        {
+            InSmoke = true;
+            Debug.Log("Player entered smoke."); 
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Hazard_Smoke"))
+        {
+            InSmoke = false;
+            Debug.Log("Player exited smoke.");
+        }
+    }
 
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;//Minus the damage taken//
         Debug.Log("Player has taken damage , current health: " + currentHealth);
-
+        HeaalthText.text = "Health: " + currentHealth.ToString();
         if (currentHealth <= 0) //if the player health is below 0 he dies//
         {
             Respawn();
@@ -50,7 +83,7 @@ public class HealthBehaviour : MonoBehaviour
                 transform.position = RespawnPoint.position;
             }
         }
-
+        HeaalthText.text = "Health: " + currentHealth.ToString();
     }
 
     public int GetCurrentHealth()
