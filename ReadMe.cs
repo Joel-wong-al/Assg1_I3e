@@ -41,4 +41,5 @@
 // Score for each potion should be 1 score so that player will have to collect all the potion to escape
 
 // Limitations or Bugs
-// N.A
+// Sometimes player will take damage even though it's not touching any hazard
+
