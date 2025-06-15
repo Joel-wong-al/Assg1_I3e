@@ -7,14 +7,14 @@ public class HealthBehaviour : MonoBehaviour
 
     private int currentHealth; //Player's current amount of health//
 
-    private bool InSmoke = false;//Whther player is in smoke//
-    [SerializeField] private int smokeDamageAmount = 20;//Damage player take in smoke per second//
+    private bool Inlazar = false;//Whther player is in lazar//
+    [SerializeField] private int lazarDamageAmount = 2;//Damage player take in lazar per second//
 
-    [SerializeField] private float smokeDamageInterval = 0.1f;
+    [SerializeField] private float lazarDamageInterval = 0.1f;
 
     [SerializeField] private Transform RespawnPoint; //The point where the player will respawn//
 
-    private float smokeTimer = 0f;
+    private float lazarTimer = 0f;
 
     [SerializeField] TextMeshProUGUI HeaalthText; //Text to display the player's health//
     void Start()
@@ -26,31 +26,31 @@ public class HealthBehaviour : MonoBehaviour
 
     void Update()
     {
-        if (InSmoke)
+        if (Inlazar)
         {
-            smokeTimer += Time.deltaTime;
+            lazarTimer += Time.deltaTime;
 
-            if (smokeTimer >= smokeDamageInterval)
+            if (lazarTimer >= lazarDamageInterval)
             {
-                TakeDamage(smokeDamageAmount);
-                smokeTimer = 0f;
+                TakeDamage(lazarDamageAmount);
+                lazarTimer = 0f;
             }
         }
     }
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Hazard_Smoke"))
+        if (other.CompareTag("Hazard_lazar"))
         {
-            InSmoke = true;
-            Debug.Log("Player entered smoke."); 
+            Inlazar = true;
+            Debug.Log("Player entered lazar."); 
         }
     }
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Hazard_Smoke"))
+        if (other.CompareTag("Hazard_lazar"))
         {
-            InSmoke = false;
-            Debug.Log("Player exited smoke.");
+            Inlazar = false;
+            Debug.Log("Player exited lazar.");
         }
     }
 
